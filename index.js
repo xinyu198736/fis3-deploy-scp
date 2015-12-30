@@ -32,11 +32,7 @@ module.exports = function (options, modified, total, callback) {
         ];
     // TODO 为了代码好看点，用sync函数也不算什么啦：）
     commands.each(function (e) {
-        child_process.execSync(e[0], function (e, ignore) {
-            if (e) {
-                throw e;
-            }
-            console.log(e[1]);
-        });
+        child_process.execSync(e[0]);
+        console.log(e[1]);
     });
 };

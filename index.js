@@ -1,6 +1,15 @@
 /**
  * fis.baidu.com
  */
+
+/*global
+    fis
+ */
+
+/*jslint
+    node: true, stupid: true, nomen: true
+ */
+
 'use strict';
 var _ = fis.util, // TODO 这个没有用到啊
     assert = require('assert'),
@@ -9,7 +18,7 @@ var _ = fis.util, // TODO 这个没有用到啊
     child_process = require('child_process'),
     crypto = require('crypto'),
     str = require('string');
-module.exports = function (options, modified, total, callback) {
+module.exports = function (options) {
     assert(options.to, 'options.to is required!');
     assert(options.source, 'options.source is required!');
     var opt = {
@@ -30,7 +39,6 @@ module.exports = function (options, modified, total, callback) {
             [unzip_cmd, '|||-> 远程部署完成'],
             [remove_local_zip, '|||-> 本地清理完成']
         ];
-    // TODO 为了代码好看点，用sync函数也不算什么啦：）
     commands.each(function (e) {
         child_process.execSync(e[0]);
         console.log(e[1]);

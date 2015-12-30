@@ -1,51 +1,42 @@
 /**
  * fis.baidu.com
  */
-var _ = fis.util;
-var path = require("path");
-var fs = require("fs");
-var child_process = require("child_process");
-
-module.exports = function(options, modified, total, callback) {
-  if (!options.to) {
-    throw new Error('options.to is required!');
-  } else if (!options.source) {
-    throw new Error('options.source is required!');
-  }
-
-  var to = options.to;
-  var source = options.source;
-  var server = options.server;
-  var cmd = 'cd ' + path.join(process.cwd(),source) + ';zip -r dist.zip ./*';
-  var scp_cmd = "scp " + path.join(source,"./dist.zip") + " " + server + ":" + to +" ";
-  var unzip_cmd = "ssh " + server + " \"cd " + to + ";unzip -o dist.zip;rm -rf dist.zip;exit;\""
-  child_process.exec(cmd,function(e,p){
-    if(e){
-      console.log(e);
-    }else{
-      console.log("|||-> 本地打包完成")
-    }
-    child_process.exec(scp_cmd,function(e1,p1){
-      if(e1){
-        console.log(e1);
-      }else{
-        console.log("|||-> 上传完成")
-      }
-      child_process.exec(unzip_cmd,function(e2,p2){
-        if(e2){
-          console.log(e2);
-        }else{
-          console.log("|||-> 远程部署完成")
-        }
-        fs.unlink(path.join(source,"./dist.zip"),function(e3){
-          if(e3){
-            console.log(e3);
-          }else{
-            console.log("|||-> 本地清理完成")
-          }
-        })
-      })
-    })
-  })
+'use strict';
+var _ = fis.util, // TODO 这个没有用到啊
+    assert = require('assert'),
+    path = require('path'),
+    fs = require('fs'),
+    child_process = require('child_process'),
+    crypto = require('crypto'),
+    str = require('string');
+module.exports = function (options, modified, total, callback) {
+    assert(options.to, 'options.to is required!');
+    assert(options.source, 'options.source is required!');
+    var opt = {
+            to: options.to,
+            source: options.source,
+            server: options.server,
+            dir: path.join(process.cwd(), this.source),
+            tmpFilename: crypto.randomBytes(36).toString('hex') + '.zip', // 避免本来目录已经有个文件叫做 dist.zip
+            local_zipfile: path.join(this.source, this.tmpFilename),
+        },
+        cmd = str('cd {dir}; zip -r {tmpFilename} ./*').template(opt).s,
+        scp_cmd = str('scp {opt.local_zipfile} server:{opt.to}').template(opt).s,
+        unzip_cmd = str('ssh {opt.server} "cd {opt.to}; unzip -o {opt.tmpFilename}; rm {opt.tmpFilename}; exit"').template(opt).s,
+        remove_local_zip = str('rm {opt.tmpFilename}').template(opt).s,
+        commands = [
+            [cmd, '|||-> 本地打包完成'],
+            [scp_cmd, '|||-> 上传完成'],
+            [unzip_cmd, '|||-> 远程部署完成'],
+            [remove_local_zip, '|||-> 本地清理完成']
+        ];
+    // TODO 为了代码好看点，用sync函数也不算什么啦：）
+    commands.each(function (e) {
+        child_process.execSync(e[0], function (e, ignore) {
+            if (e) {
+                throw e;
+            }
+            console.log(e[1]);
+        });
+    });
 };
-

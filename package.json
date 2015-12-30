@@ -16,5 +16,8 @@
   "author": {
     "name": "souche.com"
   },
-  "license": "BSD"
+  "license": "BSD",
+  "dependencies": {
+    "string": "^3.3.1"
+  }
 }

@@ -33,7 +33,7 @@ module.exports = (options) ->
         unzip_cmd
         '|||-> 远程部署完成'
       ]
-      [   a
+      [
         remove_local_zip
         '|||-> 本地清理完成'
       ]

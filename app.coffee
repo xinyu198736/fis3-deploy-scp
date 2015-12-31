@@ -16,7 +16,7 @@ module.exports = (options) ->
     tmpFilename = "#{crypto.randomBytes(36).toString('hex')}.zip"
     local_zipfile = path.join(source, tmpFilename)
     cmd = "cd #{dir}; zip -r #{tmpFilename} ./*"
-    scp_cmd = "scp #{local_zipfile} server:#{opt.to}"
+    scp_cmd = "scp #{local_zipfile} server:#{to}"
     unzip_cmd = "ssh #{server} 'cd #{to}; unzip -o #{tmpFilename}; \
         rm #{tmpFilename}; exit'"
     remove_local_zip = "rm #{tmpFilename}"

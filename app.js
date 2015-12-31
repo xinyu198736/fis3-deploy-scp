@@ -26,7 +26,7 @@
     tmpFilename = (crypto.randomBytes(36).toString('hex')) + ".zip";
     local_zipfile = path.join(source, tmpFilename);
     cmd = "cd " + dir + "; zip -r " + tmpFilename + " ./*";
-    scp_cmd = "scp " + local_zipfile + " server:" + opt.to;
+    scp_cmd = "scp " + local_zipfile + " server:" + to;
     unzip_cmd = "ssh " + server + " 'cd " + to + "; unzip -o " + tmpFilename + "; rm " + tmpFilename + "; exit'";
     remove_local_zip = "rm " + tmpFilename;
     return commands = [[cmd, '|||-> 本地打包完成'], [scp_cmd, '|||-> 上传完成'], [unzip_cmd, '|||-> 远程部署完成'], [a, remove_local_zip, '|||-> 本地清理完成']];
